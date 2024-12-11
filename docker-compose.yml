@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: . # Le répertoire contenant le Dockerfile
+    container_name: laravel_app
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/apache:/etc/apache2/sites-enabled
+    working_dir: /var/www/html
+    networks:
+      - laravel
+    depends_on:
+      - db
+    command: sh -c "composer install && apache2-foreground"
+
+  db:
+    image: mysql:8.0
+    container_name: laravel_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: laravel_password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - laravel
+
+networks:
+  laravel:
+
+volumes:
+  db_data:
